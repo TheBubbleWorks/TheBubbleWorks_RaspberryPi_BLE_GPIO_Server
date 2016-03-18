@@ -57,6 +57,7 @@ sudo hciconfig hci1 up
 sudo hciconfig
 `
 
+The output of `hciconfi` may look like this:
 
 `
 hci1:	Type: BR/EDR  Bus: USB
@@ -72,7 +73,7 @@ hci0:	Type: BR/EDR  Bus: UART
 	TX bytes:5563 acl:52 sco:0 commands:220 errors:0
 `
 
-OR
+OR this:
 
 `
 hci1:	Type: BR/EDR  Bus: UART
