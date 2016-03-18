@@ -43,18 +43,19 @@ sudo npm install -g --unsafe-perm  node-red
 
 `git clone https://github.com/TheBubbleWorks/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server.git
 cd TheBubbleWorks_RaspberryPi_BLE_GPIO_Server
-npm install`
+npm install
+`
 
 
 
 
 # Setup Bluetooth Adapter
  
-`
-sudo systemctl stop bluetooth
+`sudo systemctl stop bluetooth
 sudo hciconfig hci0 down
 sudo hciconfig hci1 up
-sudo hciconfig`
+sudo hciconfig
+`
 
 
 `
