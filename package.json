@@ -1,0 +1,20 @@
+{
+  "name": "bubble-rpi-gpio-server",
+  "version": "0.0.1",
+  "description": "Make the Pi appear as a Bluetooth LE Peripheral for remote control of GPIO",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheBubbleWorks/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server"
+  },
+  "dependencies": {
+    "bleno": "^0.3.5",
+    "onoff": "^1.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node main.js"
+  },
+  "author": "https://www.thebubbleworks.com/",
+  "license": "MIT"
+}
