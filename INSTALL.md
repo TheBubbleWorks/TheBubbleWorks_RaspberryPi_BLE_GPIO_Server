@@ -57,7 +57,8 @@ sudo hciconfig hci1 up
 sudo hciconfig`
 
 
-`hci1:	Type: BR/EDR  Bus: USB
+`
+hci1:	Type: BR/EDR  Bus: USB
 	BD Address: 5C:F3:70:68:DB:AF  ACL MTU: 1021:8  SCO MTU: 64:1
 	UP RUNNING 
 	RX bytes:14252 acl:402 sco:0 events:1007 errors:0
