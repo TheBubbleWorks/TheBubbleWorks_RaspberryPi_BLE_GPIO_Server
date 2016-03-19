@@ -16,7 +16,25 @@ The demo was developed using:
 * [Belkin USB 4.0 Bluetooth Adapter](http://www.amazon.co.uk/gp/product/B009IQB3US)
 
 
-These were also tested briefly:
+### Working
+
+* [Belkin USB 4.0 Bluetooth Adapter](http://www.amazon.co.uk/gp/product/B009IQB3US)
+* [Inateck Wireless Bluetooth 4.0]http://www.amazon.co.uk/dp/B00F0CG0N4)
+
+### Not Working
+
+* TBC
+
+### Not yet tested
+
+* [Rocketek Bluetooth 4.0 ](http://www.amazon.co.uk/gp/product/B00H8O8CMO?psc=1&redirect=true&ref_=oh_aui_search_detailpage)
+* [Racksoy Professional Bluetooth CSR 4.0 ](http://www.amazon.co.uk/gp/product/B00KNPTHS8?psc=1&redirect=true&ref_=oh_aui_search_detailpage)
+* [EasyAcc Bluetooth 4.0 ](http://www.amazon.co.uk/gp/product/B00VHUM06Y?psc=1&redirect=true&ref_=oh_aui_search_detailpage)
+* [Inateck Bluetooth 4.0 ](http://www.amazon.co.uk/gp/product/B00MTBZY4A?psc=1&redirect=true&ref_=oh_aui_search_detailpage)
+* [Inateck Wireless Bluetooth 4.0 Adapter](http://www.amazon.co.uk/gp/product/B00F0CG0N4?psc=1&redirect=true&ref_=oh_aui_search_detailpage)
+* [ORICO BTA-402 USB Bluetooth 4.0](http://www.amazon.co.uk/gp/product/B00K5TJP02?psc=1&redirect=true&ref_=oh_aui_search_detailpage)
+* [ORICO USB Bluetooth Adapter](http://www.amazon.co.uk/gp/product/B00ESBRTMO?psc=1&redirect=true&ref_=oh_aui_search_detailpage)
+* [Plugable USB Bluetooth 4.0 ](http://www.amazon.co.uk/gp/product/B009ZIILLI?psc=1&redirect=true&ref_=oh_aui_search_detailpage)
 
 
 

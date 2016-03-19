@@ -20,7 +20,7 @@ sudo systemctl stop bluetooth
 sudo hciconfig
 ```
 
-The output of `hciconfig` may look like this:
+The output of `hciconfig` may look like these cases:
 
 Case 1: hci0 is the Pi's built-in BLE device:
 
@@ -57,7 +57,7 @@ hci0:	Type: BR/EDR  Bus: USB
 ```
 
 
-NOTE: choose the hci device that has `BUS: USB`
+NOTE: choose the hci device that has `BUS: USB` it wont always be the same hci device id.
 
 
 ```
@@ -65,15 +65,16 @@ sudo hciconfig hci0 down
 sudo hciconfig hci1 up
 ```
 
+To simplyfiy thing the start script that shuts down all the adapters then start the USB ones.
 
-Automated, shut down all Bluetooth adapters;
+Shut down all Bluetooth adapters;
 
 ```
 hciconfig | grep hci| cut -d ':' -f 1 | xargs -I % sudo hciconfig %I down
 ```
 
 
-Start only the 'USB' type adapters 
+Start the 'USB' type adapters only. If you have  than one connected it will start them all, you can specify which one at start-up (see below)
 
 ```
 hciconfig | grep USB | cut -d ':' -f 1 | xargs -I % sudo hciconfig %I up
@@ -136,7 +137,7 @@ Scroll down to the RasperryPi Demo on https://www.thebubbleworks.com/
 # Example output 
 
 ```
-pi@raspberrypi:~/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server $ ./start.sh 
+pi@raspberrypi:~/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server $ npm start 
 hci2:	Type: BR/EDR  Bus: USB
 	BD Address: 00:1A:7D:DA:71:13  ACL MTU: 310:10  SCO MTU: 64:8
 	UP RUNNING 
