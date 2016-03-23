@@ -1,6 +1,6 @@
 These install instructions guide you thru setting up the system packages and the demo source code.
 
-By starting with the same Raspbian image (linked below) and then by following the instructions on this page you should have a setup that as identical to mine. (Dependong on your Bluetooth LE dongle)
+By starting with the same Raspbian image (linked below) and then by following the instructions on this page you should have a setup that as identical to mine. (Depending on your Bluetooth LE dongle)
 
 
 
@@ -14,12 +14,13 @@ By starting with the same Raspbian image (linked below) and then by following th
 The demo was developed using:
 
 * [Belkin USB 4.0 Bluetooth Adapter](http://www.amazon.co.uk/gp/product/B009IQB3US)
+* Raspberry Pi 3 (also tested on a Pi 2)
 
 
 ### Working
 
 * [Belkin USB 4.0 Bluetooth Adapter](http://www.amazon.co.uk/gp/product/B009IQB3US)
-* [Inateck Wireless Bluetooth 4.0]http://www.amazon.co.uk/dp/B00F0CG0N4)
+* [Inateck Wireless Bluetooth 4.0](http://www.amazon.co.uk/dp/B00F0CG0N4)
 
 ### Not Working
 
@@ -64,7 +65,7 @@ sudo apt-get remove nodered nodejs nodejs-legacy npm
 ```
 
 ```
-curl -sL https://deb.nodesource.com/setup_4.x | sudo bash -
+curl -sL https://deb.nodesource.com/setup_5.x | sudo bash -
 
 sudo apt-get install -y nodejs build-essential python-dev python-rpi.gpio nodejs libudev-dev libusb-1.0-0.dev libcap2-bin
 
