@@ -8,7 +8,7 @@ Please see [INSTALL](INSTALL.md) for instructions on how to setup the system pac
 
 ## Bluetooth Adapter
 
-At the time of writing there is an open 'bleno' issue that prevent the Pi 3's onboard Bluetooth LE hardware from working.
+At the time of writing there is an [open 'bleno' issue](https://github.com/sandeepmistry/bleno/issues/180) that prevent the Pi 3's onboard Bluetooth LE hardware from working.
 
 Because you need to use a USB Bluetooth LE dongle you will need to enable it and disable the Pi's built-in BLE device.
 
