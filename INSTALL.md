@@ -1,6 +1,6 @@
 These install instructions guide you thru setting up the system packages and the demo source code.
 
-By starting with the same Raspbian image (linked below) and then by following the instructions on this page you should have a setup that as identical to mine. (Dependong on your Bluetooth LE dongle)
+By starting with the same Raspbian image (linked below) and then by following the instructions on this page you should have a setup that as identical to mine. (Depending on your Bluetooth LE dongle)
 
 
 
