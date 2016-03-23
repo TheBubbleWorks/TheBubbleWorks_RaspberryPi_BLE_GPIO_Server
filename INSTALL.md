@@ -64,7 +64,7 @@ sudo apt-get remove nodered nodejs nodejs-legacy npm
 ```
 
 ```
-curl -sL https://deb.nodesource.com/setup_4.x | sudo bash -
+curl -sL https://deb.nodesource.com/setup_5.x | sudo bash -
 
 sudo apt-get install -y nodejs build-essential python-dev python-rpi.gpio nodejs libudev-dev libusb-1.0-0.dev libcap2-bin
 
