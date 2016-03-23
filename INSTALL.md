@@ -14,6 +14,7 @@ By starting with the same Raspbian image (linked below) and then by following th
 The demo was developed using:
 
 * [Belkin USB 4.0 Bluetooth Adapter](http://www.amazon.co.uk/gp/product/B009IQB3US)
+* Raspberry Pi 3 (also tested on a Pi 2)
 
 
 ### Working
