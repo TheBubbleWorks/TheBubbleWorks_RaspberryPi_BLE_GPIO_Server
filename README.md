@@ -12,7 +12,7 @@ At the time of writing there is an [open 'bleno' issue](https://github.com/sande
 
 Because you need to use a USB Bluetooth LE dongle you will need to enable it and disable the Pi's built-in BLE device.
 
-It's also necessary to stop the (bluez) `bluetoothd` daemon as there is a conflict between how bleno and the a Bluez builtin GATT server.
+It's also necessary to stop the (bluez) `bluetoothd` daemon as there is a conflict between how bleno and the a Bluez builtin GATT server overlap.
 
  
 ```
