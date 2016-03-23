@@ -20,7 +20,7 @@ The demo was developed using:
 ### Working
 
 * [Belkin USB 4.0 Bluetooth Adapter](http://www.amazon.co.uk/gp/product/B009IQB3US)
-* [Inateck Wireless Bluetooth 4.0]http://www.amazon.co.uk/dp/B00F0CG0N4)
+* [Inateck Wireless Bluetooth 4.0](http://www.amazon.co.uk/dp/B00F0CG0N4)
 
 ### Not Working
 
