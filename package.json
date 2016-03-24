@@ -8,8 +8,9 @@
     "url": "https://github.com/TheBubbleWorks/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server"
   },
   "dependencies": {
-    "bleno": "^0.3.5",
-    "onoff": "^1.0.4"
+    "bleno": "^0.4.0",
+    "onoff": "^1.0.4",
+    "pi-blaster.js": "^0.1.1"
   },
   "devDependencies": {},
   "scripts": {
