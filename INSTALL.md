@@ -8,8 +8,7 @@ By starting with the same Raspbian image (linked below) and then by following th
 
 * Raspian Jessie 
 * Chrome 49+ on ChromeOS, Android or Linux, for the most up to date info  [see the support matrix](https://github.com/WebBluetoothCG/web-bluetooth/blob/gh-pages/implementation-status.md).
-* Bluetooth LE dongle, even on a Pi 3 at the time of writing (Please [see this issue](https://github.com/sandeepmistry/bleno/issues/180) for why).
-  
+* Bluetooth LE dongle, if your not running on a Pi 3  
 
 The demo was developed using:
 

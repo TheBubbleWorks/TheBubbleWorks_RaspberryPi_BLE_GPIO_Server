@@ -8,78 +8,15 @@ Please see [INSTALL](INSTALL.md) for instructions on how to setup the system pac
 
 ## Bluetooth Adapter
 
-At the time of writing there is an [open 'bleno' issue](https://github.com/sandeepmistry/bleno/issues/180) that prevents the Pi 3's onboard Bluetooth LE hardware from working.
+If you don't have a Pi 3 you will need to use a USB Bluetooth LE dongle.
 
-Because you need to use a USB Bluetooth LE dongle you will need to enable it and disable the Pi's built-in BLE device.
-
-It's also necessary to stop the (bluez) `bluetoothd` daemon as there is a conflict between how bleno and the a Bluez builtin GATT server overlap.
+It's currently necessary to stop the (bluez) `bluetoothd` daemon as there is a conflict between how bleno and the a Bluez builtin GATT server overlap.
 
  
 ```
 sudo systemctl stop bluetooth
 sudo hciconfig
 ```
-
-The output of `hciconfig` may look like these cases:
-
-Case 1: hci0 is the Pi's built-in BLE device:
-
-```
-hci1:	Type: BR/EDR  Bus: USB
-	BD Address: 5C:F3:70:68:DB:AF  ACL MTU: 1021:8  SCO MTU: 64:1
-	UP RUNNING 
-	RX bytes:14252 acl:402 sco:0 events:1007 errors:0
-	TX bytes:18778 acl:509 sco:0 commands:617 errors:0
-
-hci0:	Type: BR/EDR  Bus: UART
-	BD Address: B8:27:EB:0A:F7:8E  ACL MTU: 1021:8  SCO MTU: 64:1
-	DOWN 
-	RX bytes:12569 acl:58 sco:0 events:332 errors:0
-	TX bytes:5563 acl:52 sco:0 commands:220 errors:0
-```
-
-Or may look like this:
-
-Case 2: hci1 is the Pi's built-in BLE device:
-
-```
-hci1:	Type: BR/EDR  Bus: UART
-	BD Address: B8:27:EB:0A:F7:8E  ACL MTU: 1021:8  SCO MTU: 64:1
-	DOWN 
-	RX bytes:1420 acl:0 sco:0 events:82 errors:0
-	TX bytes:2294 acl:0 sco:0 commands:82 errors:0
-
-hci0:	Type: BR/EDR  Bus: USB
-	BD Address: 5C:F3:70:68:DB:AF  ACL MTU: 1021:8  SCO MTU: 64:1
-	UP RUNNING 
-	RX bytes:1274 acl:0 sco:0 events:78 errors:0
-	TX bytes:2182 acl:0 sco:0 commands:78 errors:0
-```
-
-
-NOTE: choose the hci device that has `BUS: USB` it wont always be the same hci device id.
-
-
-```
-sudo hciconfig hci0 down
-sudo hciconfig hci1 up
-```
-
-To simplyfiy thing the start script that shuts down all the adapters then start the USB ones.
-
-Shut down all Bluetooth adapters;
-
-```
-hciconfig | grep hci| cut -d ':' -f 1 | xargs -I % sudo hciconfig %I down
-```
-
-
-Start the 'USB' type adapters only. If you have  than one connected it will start them all, you can specify which one at start-up (see below)
-
-```
-hciconfig | grep USB | cut -d ':' -f 1 | xargs -I % sudo hciconfig %I up
-```
-
 
 
 # Start
@@ -124,7 +61,6 @@ node test/test_led.js`
 
 Raw Testing usng LightBlue:
 
-
 0031021b01
 0031021b00
 
@@ -138,15 +74,9 @@ Scroll down to the RasperryPi Demo on https://www.thebubbleworks.com/
 
 ```
 pi@raspberrypi:~/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server $ npm start 
-hci2:	Type: BR/EDR  Bus: USB
-	BD Address: 00:1A:7D:DA:71:13  ACL MTU: 310:10  SCO MTU: 64:8
-	UP RUNNING 
-	RX bytes:2976 acl:0 sco:0 events:165 errors:0
-	TX bytes:2051 acl:0 sco:0 commands:165 errors:0
-
-hci1:	Type: BR/EDR  Bus: UART
+hci0:	Type: BR/EDR  Bus: UART
 	BD Address: B8:27:EB:0A:F7:8E  ACL MTU: 1021:8  SCO MTU: 64:1
-	DOWN 
+	UP
 	RX bytes:2116 acl:0 sco:0 events:121 errors:0
 	TX bytes:3052 acl:0 sco:0 commands:121 errors:0
 
