@@ -1,18 +1,15 @@
 process.env['BLENO_DEVICE_NAME'] = 'BubblePi';
 
+// Note that you may need to require a nested version of bleno
+// See https://github.com/don/node-eddystone-beacon/issues/30
+// See https://github.com/don/node-eddystone-beacon/pull/31
 
 var bleno = require('bleno');
+//var bleno = require('eddystone-beacon/node_modules/bleno');
+var eddystoneBeacon = require('eddystone-beacon');
 
-//var GPIO = require("./lib/bubble-rpigpio.js");
-//var gpio = new GPIO();
-
-//var GPIOService = require('./services/rpi-gpio/rpi-gpio-service');
-//var gpioService = new GPIOService(gpio);
-
-
-var WebSocket = require('ws');
-var ws = new WebSocket('ws://localhost:8000');
-
+//var WebSocket = require('ws');
+//var ws = new WebSocket('ws://localhost:8000');
 
 var UARTService = require('./services/uart/uart-service');
 var uartService = new UARTService(onUARTReceiveData);
@@ -26,15 +23,6 @@ function onUARTReceiveData(data) {
     // Validate 'magic'
     if (data[0] != 0x00)
         return;
-
-    // Check if RPI GPIO command
-    var funcCode = data[1]
-    if (funcCode == 0x31) {
-        // Check if set pin state sub-commmand
-        if (data[2] == 0x02) {
-            //gpio.setPinState(data[3], data[4]);
-        }
-    }
 
     if (funcCode == 0x04) {
         // We need at least 4 bytes (magic + function code + speed A + speed B)
@@ -52,7 +40,26 @@ function onUARTReceiveData(data) {
 }
 
 
+bleno.once('advertisingStart', function(err) {
+  if (err) {
+    throw err;
+  }
 
+  console.log('on -> advertisingStart');
+  bleno.setServices([
+      uartService
+  ]);
+});
+
+eddystoneBeacon.advertiseUrl('https://goo.gl/BlLKHs');
+
+
+
+
+// -- Non Eddystone beacon bleno code
+
+
+/*
 bleno.on('stateChange', function(state) {
     console.log('on -> stateChange: ' + state);
 
@@ -105,4 +112,32 @@ bleno.on('advertisingStartError', function(error) {
     console.log('on -> advertisingStartError, error: ' + error);
 });
 
+*/
 
+
+// -- Generic GPIO serve
+
+/*
+
+var GPIO = require("./lib/bubble-rpigpio.js");
+var gpio = new GPIO();
+
+var GPIOService = require('./services/rpi-gpio/rpi-gpio-service');
+var gpioService = new GPIOService(gpio);
+
+
+function onUARTReceiveData(data) {
+
+// ...
+    // Check if RPI GPIO command
+    var funcCode = data[1]
+    if (funcCode == 0x31) {
+        // Check if set pin state sub-commmand
+        if (data[2] == 0x02) {
+            //gpio.setPinState(data[3], data[4]);
+        }
+    }
+
+// ...
+}
+ */

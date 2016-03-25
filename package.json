@@ -8,9 +8,9 @@
     "url": "https://github.com/TheBubbleWorks/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server"
   },
   "dependencies": {
-    "bleno": "^0.4.0",
+    "bleno": "0.3.2",  
+    "eddystone-beacon": "https://github.com/TheBubbleWorks/node-eddystone-beacon.git",
     "onoff": "^1.0.4",
-    "pi-blaster.js": "^0.1.1",
     "ws": "^1.0.1"
   },
   "devDependencies": {},
