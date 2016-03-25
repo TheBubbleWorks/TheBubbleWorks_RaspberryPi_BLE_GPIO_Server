@@ -1,33 +1,53 @@
-
-
-
 process.env['BLENO_DEVICE_NAME'] = 'BubblePi';
 
 
 var bleno = require('bleno');
 
-var GPIO = require("./lib/bubble-rpigpio.js");
-var gpio = new GPIO();
-
+//var GPIO = require("./lib/bubble-rpigpio.js");
+//var gpio = new GPIO();
 
 //var GPIOService = require('./services/rpi-gpio/rpi-gpio-service');
 //var gpioService = new GPIOService(gpio);
+
+
+var WebSocket = require('ws');
+var ws = new WebSocket('ws://localhost:8000');
+
 
 var UARTService = require('./services/uart/uart-service');
 var uartService = new UARTService(onUARTReceiveData);
 
 
-
 function onUARTReceiveData(data) {
-    if (data.length>=5) {
-        // Check if RPI GPIO command
-        if (data[1] == 0x31) {
-            // Check if set pin state sub-commmand
-            if (data[2] == 0x02) {
-                gpio.setPinState(data[3], data[4]);
-            }
+    // We need at least 2 bytes (magic + function code)
+    if (data.length<2)
+        return;
+
+    // Validate 'magic'
+    if (data[0] != 0x00)
+        return;
+
+    // Check if RPI GPIO command
+    var funcCode = data[1]
+    if (funcCode == 0x31) {
+        // Check if set pin state sub-commmand
+        if (data[2] == 0x02) {
+            //gpio.setPinState(data[3], data[4]);
         }
     }
+
+    if (funcCode == 0x04) {
+        // We need at least 4 bytes (magic + function code + speed A + speed B)
+        if (data.length<4)
+            return;
+        //var int8Arr = new Int8Array(data);
+        var speedA = data[2];
+        var speedB = data[3];
+        var jsonString = JSON.stringify({MotorASpeed:speedA-100, MotorBSpeed:speedB-100});
+        console.log("Sending: " + jsonString);
+        ws.send(jsonString);
+    }
+
     return true;
 }
 

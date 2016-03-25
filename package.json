@@ -10,7 +10,8 @@
   "dependencies": {
     "bleno": "^0.4.0",
     "onoff": "^1.0.4",
-    "pi-blaster.js": "^0.1.1"
+    "pi-blaster.js": "^0.1.1",
+    "ws": "^1.0.1"
   },
   "devDependencies": {},
   "scripts": {
