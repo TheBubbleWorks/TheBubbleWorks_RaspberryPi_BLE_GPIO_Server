@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+
+<!--
+
+Pre-requisites:
+
+Raspberry Pi 2 or 3: https://www.raspberrypi.org/
+Raspberry Pi setup:  TODO:  Pi projust will appear under https://github.com/TheBubbleWorks
+
+
+To run this demo you will need to use a compatible browser ona supported OS, please see the browser
+compatibility matrix here: https://github.com/WebBluetoothCG/web-bluetooth/blob/gh-pages/implementation-status.md
+
+Note: On some browser versions and platform you may get a message "GATT operation failed for unknown reason" this is often a warning that can be ignored, mostly...
+-->
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0"/>
+    <title>Raspberry Pi - Blink Simple</title>
+</head>
+
+<body>
+<div>
+    <button id="connectButton" onclick="setupBluetooth()">Connect</button>
+</div>
+<br/>
+<div>
+    <button id="onButton" onclick="motorsOnPressed()">LED On</button>
+</div>
+<br/>
+<div>
+    <button id="offButton" onclick="motorsOffPressed()">LED Off</button>
+</div>
+<br/>
+
+
+<script>
+    // These 128-Bit ID's are for a custom Raspberry{Pi GPIO BLE Profile
+    // 
+    // NOTE: currently disabled due to an issue on Android, so we are re-using
+    //       the UART service and a bespoke byte-orientated command protocol.
+    //       This protocol is shared, and can co-exist, with the MicroBorg and MeArm demos.
+    
+    // 
+    //var RPI_GPIO_SERVICE_UUID       = '31410000-3100-1000-8000-00805f9b34fb';
+    //var RPI_GPIO_PINSTATE_CHAR_UUID = '31410001-3101-1000-8000-00805f9b34fb';
+    
+    // These 128-Bit ID's correspond to the Nordic Semi-conductor 'UART' BLE service which is used by Adafruit and others.
+    var RPI_GPIO_SERVICE_UUID       = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+    var RPI_GPIO_PINSTATE_CHAR_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+
+    var connected = false;
+    var gattServer = null;
+    var gpioService = null;
+    var pinStateCharacteristic = null;
+
+    function handleError(error) {
+        log("ERROR:" + error);
+    }
+
+    function setupBluetooth() {
+        if (navigator.bluetooth == undefined) {
+            log('ERROR: Web Bluetooth support not found, please see: https://goo.gl/5p4zNM');
+            return;
+        }
+
+        if (gattServer != null && gattServer.connected) {
+            //disconnect();
+        } else {
+            log('Connecting...');
+            if (pinStateCharacteristic == null) {
+                navigator.bluetooth.requestDevice({
+                            filters: [{
+                                services: [RPI_GPIO_SERVICE_UUID]
+                            }]
+                        })
+                        .then(function (device) {
+                            log('> DeviceNAme=' + device.name);
+                            log('Connecting to GATT Server...');
+                            return device.connectGATT(); // This is deprectated, but still necessary in some 'older' browser versions.
+                        }).then(function (server) {
+                    log('> Found GATT server');
+                    gattServer = server;
+                    // Get UART service
+                    return gattServer.getPrimaryService(RPI_GPIO_SERVICE_UUID);
+                }).then(function (service) {
+                    log('> Found GPIO service');
+                    gpioService = service;
+                    // Get pinStateCharacteristic characteristic
+          
+                    return gpioService.getCharacteristic(RPI_GPIO_PINSTATE_CHAR_UUID);
+                }).then(function (characteristic) {
+                    connected = true;
+                    log('> Found PinState characteristic');
+                    pinStateCharacteristic = characteristic;
+
+                    deviceReady();
+
+                    // Listen to device notifications
+                    // TODO: re-enable when UART workaround is removed.
+                    /*return pinStateCharacteristic.startNotifications().then(function () {
+
+                        pinStateCharacteristic.addEventListener('characteristicvaluechanged', function (event) {
+                            log('> pinStateCharacteristic valuechanged = ' + event.target.value + ' [' + event.target.value.byteLength + ']');
+                            if (event.target.value.byteLength > 0) {
+                                var data = new Uint8Array(event.target.value);
+                                log("Recv data: " + data);
+
+                            }
+                        });
+                    });
+                    */
+                }).catch(handleError);
+            }
+        }
+    }
+
+ 
+    function send(data) {
+        log("Sending: " + data);
+        return pinStateCharacteristic.writeValue(new Uint8Array(data));
+    }
+
+    // These magic hex numbers below conform to the made up standard just for these demos, in a real app you would use
+    // an existing (if the device/protocal exists already) or a custom JavaScript library to hide such details.
+    // These correspond to whe the 'virtual' peripheral running on the Raspberry Pi (source on Github to follow and be linked...)
+
+    var MOTORS_ON_MESSAGE  = [0x00, 0x04, 200, 200];
+    var MOTORS_OFF_MESSAGE = [0x00, 0x04, 100, 100];
+
+    function deviceReady() {
+    }
+
+    function ledOnPressed() {
+        send(MOTORS_ON_MESSAGE);
+    }
+
+    function ledOffPressed() {
+        send(MOTORS_OFF_MESSAGE);
+    }
+
+</script>
+
+
+<!-- In browser console output for debugging, Caveman Debugging! -->
+<h3>Debug output:</h3>
+<textarea cols="80" rows="16" id="consoleTextArea" ></textarea>
+<script>
+    function log(line) {
+        console.log(line);
+        var textarea = document.getElementById('consoleTextArea');
+        previous_text = textarea.innerHTML;
+        textarea.innerHTML = previous_text + line + "\n";
+        textarea.scrollTop = textarea.scrollHeight;
+
+    }
+</script>
+
+
+</body>
+</html>
+
