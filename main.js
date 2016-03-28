@@ -1,6 +1,11 @@
 DEVICE_NAME = 'CamJamEduKit3';
+BEACON_URL = 'https://goo.gl/gS7y9Q'   // https://www.thebubbleworks.com/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server/test/www/
+TX_POWER= -4
+FLIPFLOP_TIME = 2000;
 
+WEBSOCKET_GPIO_URL = 'ws://localhost:8000'
 
+//BEACON_URL  = 'https://192.168.1.73:9443'
 
 process.env['BLENO_DEVICE_NAME'] = DEVICE_NAME;
 
@@ -13,7 +18,7 @@ var bleno = require('bleno');
 var eddystoneBeacon = require('eddystone-beacon');
 
 var WebSocket = require('ws');
-var ws = new WebSocket('ws://localhost:8000');
+var ws = new WebSocket(WEBSOCKET_GPIO_URL);
 
 var UARTService = require('./services/uart/uart-service');
 var uartService = new UARTService(onUARTReceiveData);
@@ -63,10 +68,9 @@ bleno.on('stateChange', function(state) {
 
 
 var BEACON_ADV_STATE= 0;
-var GATT_ADV_STATE = 1
+var GATT_ADV_STATE = 1;
 
 
-var FLIPFLOP_TIME = 2000;
 
 var flipFlopIntervalTimer;
 var flipFlopEnabled = true;;
@@ -112,8 +116,8 @@ function stop_advertising_flipflop() {
 
 function start_beacon_advertising() {
     console.log("start_beacon_advertising");
-    var url = 'https://192.168.1.73:9443'
-    eddystoneBeacon.advertiseUrl(url, { name: DEVICE_NAME }, { txPowerLevel: -25 });  //
+    var url = BEACON_URL;
+    eddystoneBeacon.advertiseUrl(url, { name: DEVICE_NAME }, { txPowerLevel: TX_POWER });  //
 }
 
 function stop_beacon_advertising() {

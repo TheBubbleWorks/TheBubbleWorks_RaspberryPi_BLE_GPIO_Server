@@ -96,3 +96,10 @@ Set pin state pin = 27 State = 1
 UARTTXCharacteristic - onWriteRequest: len = 5 value = 0031021b00
 Set pin state pin = 27 State = 0
 ```
+
+---
+
+#  LIve Demo
+
+
+Open a demo in a Web Bluetooth enabled browser [here](https://www.thebubbleworks.com/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server/test/www/).
