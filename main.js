@@ -1,11 +1,12 @@
 DEVICE_NAME = 'CamJamEduKit3';
-BEACON_URL = 'https://goo.gl/gS7y9Q'   // https://www.thebubbleworks.com/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server/test/www/
-TX_POWER= -4
-FLIPFLOP_TIME = 2000;
+TX_POWER= -25
 
+BEACON_URL = 'https://goo.gl/gS7y9Q'   // https://www.thebubbleworks.com/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server/test/www/
+//BEACON_URL  = 'https://192.168.1.73:9443'
+
+FLIPFLOP_TIME = 2000;
 WEBSOCKET_GPIO_URL = 'ws://localhost:8000'
 
-//BEACON_URL  = 'https://192.168.1.73:9443'
 
 process.env['BLENO_DEVICE_NAME'] = DEVICE_NAME;
 
@@ -24,6 +25,9 @@ var UARTService = require('./services/uart/uart-service');
 var uartService = new UARTService(onUARTReceiveData);
 
 
+var GPIO = require("./lib/bubble-rpigpio.js");
+var gpio = new GPIO();
+
 function onUARTReceiveData(data) {
     // We need at least 2 bytes (magic + function code)
     if (data.length<2)
@@ -32,6 +36,18 @@ function onUARTReceiveData(data) {
     // Validate 'magic'
     if (data[0] != 0x00)
         return;
+
+    var funcCode = data[1];
+
+    if (funcCode == 0x31) {
+        if (data.length<5)
+            return;
+        // Check if set pin state sub-commmand
+        if (data[2] == 0x02) {
+            gpio.setPinState(data[3], data[4]);
+        }
+    }
+
 
     if (funcCode == 0x04) {
         // We need at least 4 bytes (magic + function code + speed A + speed B)
