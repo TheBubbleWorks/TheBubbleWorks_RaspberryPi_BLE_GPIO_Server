@@ -27,11 +27,11 @@ Note: On some browser versions and platform you may get a message "GATT operatio
 </div>
 <br/>
 <div>
-    <button id="onButton" onclick="motorsOnPressed()">LED On</button>
+    <button id="onButton" onclick="ledOnPressed()">LED On</button>
 </div>
 <br/>
 <div>
-    <button id="offButton" onclick="motorsOffPressed()">LED Off</button>
+    <button id="offButton" onclick="ledOffPressed()">LED Off</button>
 </div>
 <br/>
 
@@ -61,46 +61,47 @@ Note: On some browser versions and platform you may get a message "GATT operatio
     }
 
     function setupBluetooth() {
-        if (navigator.bluetooth == undefined) {
-            log('ERROR: Web Bluetooth support not found, please see: https://goo.gl/5p4zNM');
-            return;
-        }
+        try {
+            if (navigator.bluetooth == undefined) {
+                log('ERROR: Web Bluetooth support not found, please see: https://goo.gl/5p4zNM');
+                return;
+            }
 
-        if (gattServer != null && gattServer.connected) {
-            //disconnect();
-        } else {
-            log('Connecting...');
-            if (pinStateCharacteristic == null) {
-                navigator.bluetooth.requestDevice({
-                            filters: [{
-                                services: [RPI_GPIO_SERVICE_UUID]
-                            }]
-                        })
-                        .then(function (device) {
-                            log('> DeviceNAme=' + device.name);
-                            log('Connecting to GATT Server...');
-                            return device.connectGATT(); // This is deprectated, but still necessary in some 'older' browser versions.
-                        }).then(function (server) {
-                    log('> Found GATT server');
-                    gattServer = server;
-                    // Get UART service
-                    return gattServer.getPrimaryService(RPI_GPIO_SERVICE_UUID);
-                }).then(function (service) {
-                    log('> Found GPIO service');
-                    gpioService = service;
-                    // Get pinStateCharacteristic characteristic
-          
-                    return gpioService.getCharacteristic(RPI_GPIO_PINSTATE_CHAR_UUID);
-                }).then(function (characteristic) {
-                    connected = true;
-                    log('> Found PinState characteristic');
-                    pinStateCharacteristic = characteristic;
+            if (gattServer != null && gattServer.connected) {
+                //disconnect();
+            } else {
+                log('Connecting...');
+                if (pinStateCharacteristic == null) {
+                    navigator.bluetooth.requestDevice({
+                                filters: [{
+                                    services: [RPI_GPIO_SERVICE_UUID]
+                                }]
+                            })
+                            .then(function (device) {
+                                log('> DeviceNAme=' + device.name);
+                                log('Connecting to GATT Server...');
+                                return device.connectGATT(); // This is deprectated, but still necessary in some 'older' browser versions.
+                            }).then(function (server) {
+                        log('> Found GATT server');
+                        gattServer = server;
+                        // Get UART service
+                        return gattServer.getPrimaryService(RPI_GPIO_SERVICE_UUID);
+                    }).then(function (service) {
+                        log('> Found GPIO service');
+                        gpioService = service;
+                        // Get pinStateCharacteristic characteristic
 
-                    deviceReady();
+                        return gpioService.getCharacteristic(RPI_GPIO_PINSTATE_CHAR_UUID);
+                    }).then(function (characteristic) {
+                        connected = true;
+                        log('> Found PinState characteristic');
+                        pinStateCharacteristic = characteristic;
 
-                    // Listen to device notifications
-                    // TODO: re-enable when UART workaround is removed.
-                    /*return pinStateCharacteristic.startNotifications().then(function () {
+                        deviceReady();
+
+                        // Listen to device notifications
+                        // TODO: re-enable when UART workaround is removed.
+                        /*return pinStateCharacteristic.startNotifications().then(function () {
 
                         pinStateCharacteristic.addEventListener('characteristicvaluechanged', function (event) {
                             log('> pinStateCharacteristic valuechanged = ' + event.target.value + ' [' + event.target.value.byteLength + ']');
@@ -114,31 +115,39 @@ Note: On some browser versions and platform you may get a message "GATT operatio
                     */
                 }).catch(handleError);
             }
+            }
+        } catch (error) {
+            handleError(error);
         }
     }
 
  
     function send(data) {
-        log("Sending: " + data);
-        return pinStateCharacteristic.writeValue(new Uint8Array(data));
+        // Note: this will not catch all WebBluetooth errors (they will only appear in JS console)
+        try {
+            log("Sending: " + data);
+            return pinStateCharacteristic.writeValue(new Uint8Array(data));
+        } catch (error) {
+            handleError(error);
+        }
     }
 
     // These magic hex numbers below conform to the made up standard just for these demos, in a real app you would use
     // an existing (if the device/protocal exists already) or a custom JavaScript library to hide such details.
     // These correspond to whe the 'virtual' peripheral running on the Raspberry Pi (source on Github to follow and be linked...)
 
-    var MOTORS_ON_MESSAGE  = [0x00, 0x04, 200, 200];
-    var MOTORS_OFF_MESSAGE = [0x00, 0x04, 100, 100];
+    var LED_ON_MESSAGE  = [0x00, 0x31,  0x02, 0x17, 0x01];
+    var LED_OFF_MESSAGE = [0x00, 0x31,  0x02, 0x17, 0x00];
 
     function deviceReady() {
     }
 
     function ledOnPressed() {
-        send(MOTORS_ON_MESSAGE);
+        send(LED_ON_MESSAGE);
     }
 
     function ledOffPressed() {
-        send(MOTORS_OFF_MESSAGE);
+        send(LED_OFF_MESSAGE);
     }
 
 </script>
