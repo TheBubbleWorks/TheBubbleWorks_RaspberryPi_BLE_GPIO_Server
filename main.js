@@ -24,9 +24,14 @@ var ws = new WebSocket(WEBSOCKET_GPIO_URL);
 var UARTService = require('./services/uart/uart-service');
 var uartService = new UARTService(onUARTReceiveData);
 
-
 var GPIO = require("./lib/bubble-rpigpio.js");
 var gpio = new GPIO();
+
+
+bleno.on('disconnect', function(clientAddress) {
+    console.log('TODO: stop motors!!!');
+});
+
 
 function onUARTReceiveData(data) {
     // We need at least 2 bytes (magic + function code)
@@ -39,20 +44,41 @@ function onUARTReceiveData(data) {
 
     var funcCode = data[1];
 
-    if (funcCode == 0x31) {
-        if (data.length<5)
+    if (funcCode == 0x31)
+    {
+        if (data.length<5) {
+            handleError("Not enough data");
             return;
+        }
         // Check if set pin state sub-commmand
         if (data[2] == 0x02) {
             gpio.setPinState(data[3], data[4]);
         }
     }
-
-
-    if (funcCode == 0x04) {
-        // We need at least 4 bytes (magic + function code + speed A + speed B)
-        if (data.length<4)
+    else if (funcCode == 0x01)
+    {
+        if (data.length<6) {
+            handleError("Not enough data");
             return;
+        }
+        var x = (data[2] + (data[3] << 8))-255;
+        var y = ((data[4] + (data[5] << 8))-255);
+        var speedA =  -Math.floor(x * (100/255));
+        var speedB =  Math.floor(y * (100/255));
+
+
+
+        var jsonString = JSON.stringify({MotorASpeed:speedA, MotorBSpeed:speedB});
+        console.log("Sending: " + jsonString);
+        ws.send(jsonString);
+    }
+    else if (funcCode == 0x04)
+    {
+        // We need at least 4 bytes (magic + function code + speed A + speed B)
+        if (data.length<4) {
+            handleError("Not enough data");
+            return;
+        }
         //var int8Arr = new Int8Array(data);
         var speedA = data[2];
         var speedB = data[3];
