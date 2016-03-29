@@ -10,12 +10,7 @@ WEBSOCKET_GPIO_URL = 'ws://localhost:8000'
 
 process.env['BLENO_DEVICE_NAME'] = DEVICE_NAME;
 
-// Note that you may need to require a nested version of bleno
-// See https://github.com/don/node-eddystone-beacon/issues/30
-// See https://github.com/don/node-eddystone-beacon/pull/31
-
 var bleno = require('bleno');
-//var bleno = require('eddystone-beacon/node_modules/bleno');
 var eddystoneBeacon = require('eddystone-beacon');
 
 var WebSocket = require('ws');
@@ -28,9 +23,34 @@ var GPIO = require("./lib/bubble-rpigpio.js");
 var gpio = new GPIO();
 
 
+
+// Robot specifc stuf...
+
+
+function lineSensorUpdate(err, value) {
+    if (err) {
+        throw err;
+    }
+    console.log('LineDector sensor value was ' + value);
+    //console.log();
+    var rxChar =uartService.characteristics[1]; // TODO: find this, not assume
+
+    try {
+        rxChar.updateValue(new Buffer([value]));
+    } catch  (error) {
+        handleError(error);
+    }
+}
+
+gpio.watchPin(25, lineSensorUpdate);
+
+
+
 bleno.on('disconnect', function(clientAddress) {
     console.log('TODO: stop motors!!!');
 });
+
+
 
 
 function onUARTReceiveData(data) {
