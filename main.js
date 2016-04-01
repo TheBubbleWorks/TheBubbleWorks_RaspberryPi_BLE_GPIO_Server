@@ -1,5 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------
+// Hardware Config
 
+
+LINE_SENSOR_PIN     = 25;
+
+SONAR_TRIGGER_PIN   = 17;
+SONAR_ECHO_PIN      = 18;
+SONAR_TIMEOUT       = 1000; // ms
+
+
+// ---------------------------------------------------------------------------------------------------------
 
 DEVICE_NAME = 'CamJamEduKit3';
 TX_POWER= -25
@@ -8,7 +18,8 @@ BEACON_URL   = 'https://goo.gl/uYVEZh'   // https://www.thebubbleworks.com/TheBu
 //BEACON_URL = 'https://goo.gl/gS7y9Q'   // https://www.thebubbleworks.com/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server/test/www/
 //BEACON_URL  = 'https://192.168.1.73:9443'
 
-FLIPFLOP_TIME = 2000;
+FLIPFLOP_TIME = 5000;
+
 
 // ---------------------------------------------------------------------------------------------------------
 
@@ -16,13 +27,15 @@ FLIPFLOP_TIME = 2000;
 WEBSOCKET_GPIO_URL = 'ws://localhost:8000'
 
 
+LOG_LEVEL = 'debug';
+
 // ---------------------------------------------------------------------------------------------------------
 
 process.env['BLENO_DEVICE_NAME'] = DEVICE_NAME;
 
 
 var log = require('winston');
-log.level = 'info';
+log.level = LOG_LEVEL;
 log.info("Starting...");
 
 var bleno = require('bleno');
@@ -66,8 +79,11 @@ function lineSensorUpdate(err, value) {
     }
 }
 
-gpio.watchPin(25, lineSensorUpdate);
-var distanceSensor = gpio.createDistanceSensor(18, 17, 1000);
+
+
+gpio.watchPin(LINE_SENSOR_PIN, lineSensorUpdate);
+isOnLine = gpio.readPinState(LINE_SENSOR_PIN)
+var distanceSensor = gpio.createDistanceSensor(SONAR_ECHO_PIN, SONAR_TRIGGER_PIN, SONAR_TIMEOUT);
 
 var sensorReadingInterval = setInterval(function(){
     distance = gpio.readDistanceSensor(distanceSensor).toFixed(0);  // TODO: change this to distanceSensor.read();
@@ -96,13 +112,14 @@ bleno.on('disconnect', function(clientAddress) {
 
 
 function onUARTReceiveData(data) {
+    debug("RECV: " + data);
     // We need at least 2 bytes (magic + function code)
     if (data.length<2)
-        return;
+        return true;
 
     // Validate 'magic'
     if (data[0] != 0x00)
-        return;
+        return true;
 
     var funcCode = data[1];
 
@@ -110,7 +127,7 @@ function onUARTReceiveData(data) {
     {
         if (data.length<5) {
             handleError("Not enough data");
-            return;
+            return true;
         }
         // Check if set pin state sub-commmand
         if (data[2] == 0x02) {
@@ -121,7 +138,7 @@ function onUARTReceiveData(data) {
     {
         if (data.length<6) {
             handleError("Not enough data");
-            return;
+            return true;
         }
         var x = (data[2] + (data[3] << 8))-255;
         var y = ((data[4] + (data[5] << 8))-255);
@@ -139,7 +156,7 @@ function onUARTReceiveData(data) {
         // We need at least 4 bytes (magic + function code + speed A + speed B)
         if (data.length<4) {
             handleError("Not enough data");
-            return;
+            return true;
         }
         //var int8Arr = new Int8Array(data);
         var speedA = data[2];
@@ -267,12 +284,12 @@ bleno.on('advertisingStart', function(error) {
 
 
 bleno.on('accept', function(clientAddress) {
-    debug('on -> stateAccept: ' + clientAddress);
+    info('on -> stateAccept: ' + clientAddress);
     flipFlopEnabled = false;
 });
 
 bleno.on('disconnect', function(clientAddress) {
-    debug('on -> disconnect: ' + clientAddress);
+    info('on -> disconnect: ' + clientAddress);
     flipFlopEnabled = true;
 });
 
