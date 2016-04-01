@@ -1,55 +1,97 @@
+// ---------------------------------------------------------------------------------------------------------
+
+
 DEVICE_NAME = 'CamJamEduKit3';
 TX_POWER= -25
 
-BEACON_URL = 'https://goo.gl/gS7y9Q'   // https://www.thebubbleworks.com/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server/test/www/
+BEACON_URL   = 'https://goo.gl/uYVEZh'   // https://www.thebubbleworks.com/TheBubbleWorks_WebBluetooth_CamJamEduKitDemo/
+//BEACON_URL = 'https://goo.gl/gS7y9Q'   // https://www.thebubbleworks.com/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server/test/www/
 //BEACON_URL  = 'https://192.168.1.73:9443'
 
 FLIPFLOP_TIME = 2000;
+
+// ---------------------------------------------------------------------------------------------------------
+
+// GPIO fallback support service (Python based PWM control behind a WebSocket)
 WEBSOCKET_GPIO_URL = 'ws://localhost:8000'
 
 
+// ---------------------------------------------------------------------------------------------------------
+
 process.env['BLENO_DEVICE_NAME'] = DEVICE_NAME;
+
+
+var log = require('winston');
+log.level = 'info';
+log.info("Starting...");
 
 var bleno = require('bleno');
 var eddystoneBeacon = require('eddystone-beacon');
 
 var WebSocket = require('ws');
-var ws = new WebSocket(WEBSOCKET_GPIO_URL);
 
 var UARTService = require('./services/uart/uart-service');
 var uartService = new UARTService(onUARTReceiveData);
+var rxChar =uartService.characteristics[1]; // TODO: find this, not assume
 
 var GPIO = require("./lib/bubble-rpigpio.js");
 var gpio = new GPIO();
 
 
+// PWM fallback
+var ws = undefined;
+try {
+    ws = new WebSocket(WEBSOCKET_GPIO_URL);
+} catch (error) {
+    handleError("ERROR: WebSocket could not be created, " + error );
+}
 
-// Robot specifc stuf...
 
+// ---------------------------------------------------------------------------------------------------------
+// Robot GPIO stuff...
+
+var isOnLine = false;
+var distance = 0;
 
 function lineSensorUpdate(err, value) {
     if (err) {
         throw err;
     }
-    console.log('LineDector sensor value was ' + value);
-    //console.log();
-    var rxChar =uartService.characteristics[1]; // TODO: find this, not assume
+    debug('LineDector sensor value was ' + value);
 
     try {
-        rxChar.updateValue(new Buffer([value]));
+        isOnLine = value;
     } catch  (error) {
         handleError(error);
     }
 }
 
 gpio.watchPin(25, lineSensorUpdate);
+var distanceSensor = gpio.createDistanceSensor(18, 17, 1000);
 
+var sensorReadingInterval = setInterval(function(){
+    distance = gpio.readDistanceSensor(distanceSensor).toFixed(0);  // TODO: change this to distanceSensor.read();
+    info('Distance = ' + distance +" , isOnLine = " + isOnLine);
+
+    if (flipFlopEnabled)
+        return;
+    sendSensorUpdate([distance, isOnLine])
+}, 1000);
+
+
+
+// ---------------------------------------------------------------------------------------------------------
+// Bluetooth
+
+function sendSensorUpdate(values) {
+
+    rxChar.updateValue(new Buffer([0x00, 0x81, (values[0]) & 0xFF, values[1] & 0xFF]));
+}
 
 
 bleno.on('disconnect', function(clientAddress) {
-    console.log('TODO: stop motors!!!');
+    info('TODO: stop motors!!!');
 });
-
 
 
 
@@ -86,11 +128,11 @@ function onUARTReceiveData(data) {
         var speedA =  -Math.floor(x * (100/255));
         var speedB =  Math.floor(y * (100/255));
 
-
-
         var jsonString = JSON.stringify({MotorASpeed:speedA, MotorBSpeed:speedB});
-        console.log("Sending: " + jsonString);
-        ws.send(jsonString);
+        debug("Sending: " + jsonString);
+
+        if (ws)
+            ws.send(jsonString);
     }
     else if (funcCode == 0x04)
     {
@@ -103,21 +145,40 @@ function onUARTReceiveData(data) {
         var speedA = data[2];
         var speedB = data[3];
         var jsonString = JSON.stringify({MotorASpeed:speedA-100, MotorBSpeed:speedB-100});
-        console.log("Sending: " + jsonString);
-        ws.send(jsonString);
+        info("Sending: " + jsonString);
+        if (ws)
+            ws.send(jsonString);
     }
 
     return true;
 }
 
+
+// ---------------------------------------------------------------------------------------------------------
+// Eddystone / GATT FLip flop
+
+var BEACON_ADV_STATE= 0;
+var GATT_ADV_STATE = 1;
+
+var flipFlopIntervalTimer;
+var flipFlopEnabled = true;;
+var advertisingState = 0;
+
+
+function info(str) {
+    log.log('info', str);
+}
+
+function debug(str) {
+    log.log('debug', str);
+}
 function handleError(error) {
-    console.log("ERROR: " + error);
+    log.log('error', error);
 }
 
 
-
 bleno.on('stateChange', function(state) {
-    console.log('on -> stateChange: ' + state);
+    debug('on -> stateChange: ' + state);
 
     if (state === 'poweredOn') {
         start_advertising_flipflop();
@@ -127,16 +188,6 @@ bleno.on('stateChange', function(state) {
 });
 
 
-
-
-var BEACON_ADV_STATE= 0;
-var GATT_ADV_STATE = 1;
-
-
-
-var flipFlopIntervalTimer;
-var flipFlopEnabled = true;;
-var advertisingState = 0;
 
 function start_advertising_flipflop() {
 
@@ -150,19 +201,19 @@ function start_advertising_flipflop() {
 
 
             if (advertisingState == BEACON_ADV_STATE) {
-                console.log("FLIFLOP: BEACON_ADV_STATE");
+                debug("FLIFLOP: BEACON_ADV_STATE");
 
                 stop_service_advertising();
                 start_beacon_advertising();
             } else {
-                console.log("FLIFLOP: GATT_ADV_STATE");
+                debug("FLIFLOP: GATT_ADV_STATE");
                 stop_beacon_advertising();
                 start_service_advertising();
             }
 
         } catch(err)
         {
-            console.log("ERROR: " + JSON.stringify(err));
+            handleError(JSON.stringify(err));
         }
     }, FLIPFLOP_TIME);
 
@@ -177,13 +228,13 @@ function stop_advertising_flipflop() {
 
 
 function start_beacon_advertising() {
-    console.log("start_beacon_advertising");
+    debug("start_beacon_advertising");
     var url = BEACON_URL;
     eddystoneBeacon.advertiseUrl(url, { name: DEVICE_NAME }, { txPowerLevel: TX_POWER });  //
 }
 
 function stop_beacon_advertising() {
-    console.log("stop_beacon_advertising");
+    debug("stop_beacon_advertising");
     eddystoneBeacon.stop();
     bleno.stopAdvertising();
     bleno.disconnect();
@@ -191,22 +242,22 @@ function stop_beacon_advertising() {
 
 // -- Non Eddystone beacon bleno code
 function start_service_advertising() {
-    console.log("start_service_advertising");
+    debug("start_service_advertising");
     bleno.startAdvertising(DEVICE_NAME, [uartService.uuid]);
 }
 
 function stop_service_advertising() {
-    console.log("stop_service_advertising");
+    debug("stop_service_advertising");
     bleno.stopAdvertising();
     bleno.disconnect();
 }
 
 bleno.on('advertisingStart', function(error) {
-    console.log('on -> advertisingStart: ' + (error ? 'error ' + error : 'success'));
+    debug('on -> advertisingStart: ' + (error ? 'error ' + error : 'success'));
 
     if (!error) {
         //if (advertisingState = GATT_ADV_STATE) {
-            console.log("Advertising Services");
+            debug("Advertising Services");
             bleno.setServices([
                 uartService
             ]);
@@ -215,32 +266,23 @@ bleno.on('advertisingStart', function(error) {
 });
 
 
-/*
-bleno.once('advertisingStart', function(err) {
-  if (err) {
-    throw err;
-  }
-
-  console.log('on -> advertisingStart');
-  bleno.setServices([
-      uartService
-  ], handleError);
-});
-*/
-
-
-
-
-
 bleno.on('accept', function(clientAddress) {
-    console.log('on -> stateAccept: ' + clientAddress);
+    debug('on -> stateAccept: ' + clientAddress);
     flipFlopEnabled = false;
 });
 
 bleno.on('disconnect', function(clientAddress) {
-    console.log('on -> disconnect: ' + clientAddress);
+    debug('on -> disconnect: ' + clientAddress);
     flipFlopEnabled = true;
 });
+
+
+
+
+// ---------------------------------------------------------------------------------------------------------
+// Notes
+
+/*
 
 bleno.on('rssiUpdate', function(rssi) {
     console.log('on -> rssiUpdate: ' + rssi);
@@ -272,42 +314,12 @@ bleno.on('advertisingStop', function(error) {
 
 
 
-/*
-
- bleno.on('stateChange', function(state) {
-        console.log('on -> stateChange: ' + state);
-
-        if (state === 'poweredOn') {
-            bleno.startAdvertising('BubbleWorks', [uartService.uuid]);
-        } else {
-            bleno.stopAdvertising();
-        }
-    });
-
-    bleno.on('advertisingStart', function(error) {
-        console.log('on -> advertisingStart: ' + (error ? 'error ' + error : 'success'));
-
-        if (!error) {
-            bleno.setServices([
-                //gpioService,
-                uartService
-            ]);
-        }
-    });
-
-
-*/
-
-
 // -- Generic GPIO serve
 
 /*
 
-var GPIO = require("./lib/bubble-rpigpio.js");
-var gpio = new GPIO();
-
 var GPIOService = require('./services/rpi-gpio/rpi-gpio-service');
-var gpioService = new GPIOService(gpio);
+var gpioService = new GPIOService(gpio);  // from: ./lib/bubble-rpigpio.js
 
 
 function onUARTReceiveData(data) {

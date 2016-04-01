@@ -8,6 +8,7 @@ var UARTTXCharacteristic = require('./uart-tx-characteristic');
 var UARTRXCharacteristic = require('./uart-rx-characteristic');
 
 function UARTService(onDataCallback) {
+    var self = this;
     UARTService.super_.call(this, {
         uuid: UUIDConstants.UART_SERVICE_UUID,
         characteristics: [
@@ -15,6 +16,8 @@ function UARTService(onDataCallback) {
             new UARTRXCharacteristic(),
         ]
     });
+
+    //self.getTXCharacteristic
 }
 
 util.inherits(UARTService, BlenoPrimaryService);

@@ -44,7 +44,8 @@ UARTRXCharacteristic.prototype.onUnsubscribe = function() {
 };
 
 UARTRXCharacteristic.prototype.updateValue = function(value) {
-    this._updateValueCallback(value);
+    if (this._updateValueCallback)
+        this._updateValueCallback(value);
 }
 
 module.exports = UARTRXCharacteristic;
