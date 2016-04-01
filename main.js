@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------
 // Hardware Config
 
-
+// This is a bit too specifc at the moment...  will be refactored out.
 LINE_SENSOR_PIN     = 25;
 
 SONAR_TRIGGER_PIN   = 17;
@@ -134,7 +134,7 @@ function onUARTReceiveData(data) {
             gpio.setPinState(data[3], data[4]);
         }
     }
-    else if (funcCode == 0x01)
+    else if (funcCode == 0x01)      // 'common' joystic service   (e.g. Vortex / MicroBorg demos)
     {
         if (data.length<6) {
             handleError("Not enough data");
