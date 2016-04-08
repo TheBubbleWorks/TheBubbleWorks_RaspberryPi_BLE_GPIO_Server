@@ -1,0 +1,7 @@
+var UUIDs = {
+    SERVICE_UUID:'0000fff0-0000-1000-8000-00805f9b34fb',
+    CHAR_WRITE_UUID:'0000fff3-0000-1000-8000-00805f9b34fb',
+}
+
+
+module.exports = UUIDs;

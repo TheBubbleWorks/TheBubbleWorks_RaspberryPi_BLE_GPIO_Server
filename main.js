@@ -1,6 +1,29 @@
 // ---------------------------------------------------------------------------------------------------------
-// Hardware Config
 
+DEVICE_NAME = 'UnicornHat';
+TX_POWER= -25
+LOG_LEVEL = 'info';
+FLIPFLOP_TIME = 5000;
+BEACON_URL = 'https://goo.gl/54eFBa' // = https://webbluetoothcg.github.io/demos/bluetooth-led-display/
+
+// ---------------------------------------------------------------------------------------------------------
+// Service selection
+
+var GattService = require('./services/dotti/service');
+var service = new GattService(onCharacteristicDataWritten);
+
+function onCharacteristicDataWritten(data) {
+    debug("RECV: " + data);
+    // We need at least 2 bytes (magic + function code)
+    if (data.length < 2)
+        return true;
+
+}
+
+
+// ---------------------------------------------------------------------------------------------------------
+// Hardware Config
+/*
 // This is a bit too specifc at the moment...  will be refactored out.
 LINE_SENSOR_PIN     = 25;
 
@@ -12,58 +35,54 @@ SONAR_TIMEOUT       = 1000; // ms
 // ---------------------------------------------------------------------------------------------------------
 
 DEVICE_NAME = 'CamJamEduKit3';
-TX_POWER= -25
-
 BEACON_URL   = 'https://goo.gl/uYVEZh'   // https://www.thebubbleworks.com/TheBubbleWorks_WebBluetooth_CamJamEduKitDemo/
-
 //BEACON_URL = 'https://goo.gl/gS7y9Q'   // https://www.thebubbleworks.com/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server/test/www/
 //BEACON_URL  = 'https://192.168.1.73:9443'
-
-FLIPFLOP_TIME = 5000;
-
-
-// ---------------------------------------------------------------------------------------------------------
-
 // GPIO fallback support service (Python based PWM control behind a WebSocket)
 WEBSOCKET_GPIO_URL = 'ws://localhost:8000'
 
+*/
 
-LOG_LEVEL = 'info';
+
+
 
 // ---------------------------------------------------------------------------------------------------------
 
 process.env['BLENO_DEVICE_NAME'] = DEVICE_NAME;
 
 
+var bleno = require('bleno');
+var eddystoneBeacon = require('eddystone-beacon');
 var log = require('winston');
 log.level = LOG_LEVEL;
 log.info("Starting...");
 
-var bleno = require('bleno');
-var eddystoneBeacon = require('eddystone-beacon');
 
+/*
 var WebSocket = require('ws');
 
 var UARTService = require('./services/uart/uart-service');
 var uartService = new UARTService(onUARTReceiveData);
 var rxChar =uartService.characteristics[1]; // TODO: find this, not assume
 
-var GPIO = require("./lib/bubble-rpigpio.js");
-var gpio = new GPIO();
+//var GPIO = require("./lib/bubble-rpigpio.js");
+//var gpio = new GPIO();
 
 
 // PWM fallback
+/*
 var ws = undefined;
 try {
     ws = new WebSocket(WEBSOCKET_GPIO_URL);
 } catch (error) {
     handleError("ERROR: WebSocket could not be created, " + error );
 }
-
+*/
 
 // ---------------------------------------------------------------------------------------------------------
 // Robot GPIO stuff...
 
+/*
 var isOnLine = false;
 var distance = 0;
 
@@ -96,10 +115,6 @@ var sensorReadingInterval = setInterval(function(){
 }, 1000);
 
 
-
-// ---------------------------------------------------------------------------------------------------------
-// Bluetooth
-
 function sendSensorUpdate(values) {
 
     rxChar.updateValue(new Buffer([0x00, 0x81, (values[0]) & 0xFF, values[1] & 0xFF]));
@@ -107,11 +122,16 @@ function sendSensorUpdate(values) {
 
 
 bleno.on('disconnect', function(clientAddress) {
-    info('TODO: stop motors!!!');
+//    info('TODO: stop motors!!!');
 });
 
+*/
+// ---------------------------------------------------------------------------------------------------------
+// Bluetooth
 
 
+
+/*
 function onUARTReceiveData(data) {
     debug("RECV: " + data);
     // We need at least 2 bytes (magic + function code)
@@ -171,7 +191,7 @@ function onUARTReceiveData(data) {
     return true;
 }
 
-
+*/
 // ---------------------------------------------------------------------------------------------------------
 // Eddystone / GATT FLip flop
 
@@ -261,7 +281,7 @@ function stop_beacon_advertising() {
 // -- Non Eddystone beacon bleno code
 function start_service_advertising() {
     debug("start_service_advertising");
-    bleno.startAdvertising(DEVICE_NAME, [uartService.uuid]);
+    bleno.startAdvertising(DEVICE_NAME, [service.uuid]);
 }
 
 function stop_service_advertising() {
@@ -277,7 +297,7 @@ bleno.on('advertisingStart', function(error) {
         //if (advertisingState = GATT_ADV_STATE) {
             debug("Advertising Services");
             bleno.setServices([
-                uartService
+                service
             ]);
         //}
     }
