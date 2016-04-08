@@ -3,11 +3,13 @@
 DEVICE_NAME = 'UnicornHat';
 TX_POWER= -25
 LOG_LEVEL = 'info';
-FLIPFLOP_TIME = 5000;
+FLIPFLOP_TIME = 3000;
 BEACON_URL = 'https://goo.gl/54eFBa' // = https://webbluetoothcg.github.io/demos/bluetooth-led-display/
 
 // ---------------------------------------------------------------------------------------------------------
 // Service selection
+
+//var GattService = require('./services/uart/uart-service');
 
 var GattService = require('./services/dotti/service');
 var service = new GattService(onCharacteristicDataWritten);
@@ -61,7 +63,6 @@ log.info("Starting...");
 /*
 var WebSocket = require('ws');
 
-var UARTService = require('./services/uart/uart-service');
 var uartService = new UARTService(onUARTReceiveData);
 var rxChar =uartService.characteristics[1]; // TODO: find this, not assume
 
@@ -225,36 +226,35 @@ bleno.on('stateChange', function(state) {
     }
 });
 
+function doFlip() {
 
+    if (!flipFlopEnabled)
+        return;
+
+    try {
+        advertisingState = 1 - advertisingState;
+
+
+        if (advertisingState == BEACON_ADV_STATE) {
+            info("FLIFLOP: BEACON_ADV_STATE");
+
+            stop_service_advertising();
+            start_beacon_advertising();
+        } else {
+            info("FLIFLOP: GATT_ADV_STATE");
+            stop_beacon_advertising();
+            start_service_advertising();
+        }
+
+    } catch (err) {
+        handleError(JSON.stringify(err));
+    }
+}
 
 function start_advertising_flipflop() {
 
-    flipFlopIntervalTimer = setInterval(function () {
-
-        if (!flipFlopEnabled)
-            return;
-
-        try {
-            advertisingState = 1 - advertisingState;
-
-
-            if (advertisingState == BEACON_ADV_STATE) {
-                info("FLIFLOP: BEACON_ADV_STATE");
-
-                stop_service_advertising();
-                start_beacon_advertising();
-            } else {
-                info("FLIFLOP: GATT_ADV_STATE");
-                stop_beacon_advertising();
-                start_service_advertising();
-            }
-
-        } catch(err)
-        {
-            handleError(JSON.stringify(err));
-        }
-    }, FLIPFLOP_TIME);
-
+    flipFlopIntervalTimer = setInterval(doFlip, FLIPFLOP_TIME);
+    doFlip();
 }
 
 function stop_advertising_flipflop() {

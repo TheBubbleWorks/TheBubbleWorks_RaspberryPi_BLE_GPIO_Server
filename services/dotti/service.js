@@ -10,7 +10,7 @@ function Service(onDataCallback) {
     Service.super_.call(this, {
         uuid: UUIDConstants.SERVICE_UUID,
         characteristics: [
-            new WriteCharacteristic(),
+            new WriteCharacteristic(onDataCallback),
         ]
     });
 
