@@ -15,6 +15,7 @@ DEVICE_NAME = 'CamJamEduKit3';
 TX_POWER= -25
 
 BEACON_URL   = 'https://goo.gl/uYVEZh'   // https://www.thebubbleworks.com/TheBubbleWorks_WebBluetooth_CamJamEduKitDemo/
+
 //BEACON_URL = 'https://goo.gl/gS7y9Q'   // https://www.thebubbleworks.com/TheBubbleWorks_RaspberryPi_BLE_GPIO_Server/test/www/
 //BEACON_URL  = 'https://192.168.1.73:9443'
 
@@ -27,7 +28,7 @@ FLIPFLOP_TIME = 5000;
 WEBSOCKET_GPIO_URL = 'ws://localhost:8000'
 
 
-LOG_LEVEL = 'debug';
+LOG_LEVEL = 'info';
 
 // ---------------------------------------------------------------------------------------------------------
 
@@ -218,12 +219,12 @@ function start_advertising_flipflop() {
 
 
             if (advertisingState == BEACON_ADV_STATE) {
-                debug("FLIFLOP: BEACON_ADV_STATE");
+                info("FLIFLOP: BEACON_ADV_STATE");
 
                 stop_service_advertising();
                 start_beacon_advertising();
             } else {
-                debug("FLIFLOP: GATT_ADV_STATE");
+                info("FLIFLOP: GATT_ADV_STATE");
                 stop_beacon_advertising();
                 start_service_advertising();
             }
@@ -284,12 +285,12 @@ bleno.on('advertisingStart', function(error) {
 
 
 bleno.on('accept', function(clientAddress) {
-    info('on -> stateAccept: ' + clientAddress);
+    info('onConnect from: ' + clientAddress);
     flipFlopEnabled = false;
 });
 
 bleno.on('disconnect', function(clientAddress) {
-    info('on -> disconnect: ' + clientAddress);
+    info('onDisconnect from: ' + clientAddress);
     flipFlopEnabled = true;
 });
 
@@ -300,36 +301,6 @@ bleno.on('disconnect', function(clientAddress) {
 // Notes
 
 /*
-
-bleno.on('rssiUpdate', function(rssi) {
-    console.log('on -> rssiUpdate: ' + rssi);
-});
-
-bleno.on('servicesSet', function(error) {
-    console.log('on -> servicesSet, error?: ' +  error);
-});
-
-bleno.on('servicesSetError', function(error) {
-    console.log('on -> servicesSetError, error: ' + error);
-});
-
-
-bleno.on('advertisingStart', function(error) {
-    console.log('on -> advertisingStart, error?: ' + error);
-
-});
-
-bleno.on('advertisingStartError', function(error) {
-    console.log('on -> advertisingStartError, error: ' + error);
-});
-
-bleno.on('advertisingStop', function(error) {
-    console.log('on -> advertisingStop, error?: ' + error);
-
-});
-
-
-
 
 // -- Generic GPIO serve
 
