@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------
 
-DEVICE_NAME = 'UnicornHat';
+DEVICE_NAME = 'DottiCorn';
 TX_POWER= -25
 LOG_LEVEL = 'info';
-FLIPFLOP_TIME = 3000;
+FLIPFLOP_TIME = 15000;
 BEACON_URL = 'https://goo.gl/54eFBa' // = https://webbluetoothcg.github.io/demos/bluetooth-led-display/
 
 // ---------------------------------------------------------------------------------------------------------
@@ -20,6 +20,7 @@ function onCharacteristicDataWritten(data) {
     if (data.length < 2)
         return true;
 
+    return true;
 }
 
 
