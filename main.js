@@ -5,11 +5,12 @@ var WebSocket = require('ws');
 
 // ---------------------------------------------------------------------------------------------------------
 
-DEVICE_NAME = 'UnicornHat';
+DEVICE_NAME = 'Doticorn';
 TX_POWER= -25
 LOG_LEVEL = 'info';
-FLIPFLOP_TIME = 3000;
-BEACON_URL = 'https://goo.gl/54eFBa' // = https://webbluetoothcg.github.io/demos/bluetooth-led-display/
+FLIPFLOP_TIME = 15000;
+BEACON_URL = 'https://RWI75V';   // Doticorn
+//BEACON_URL = 'https://goo.gl/54eFBa' // = https://webbluetoothcg.github.io/demos/bluetooth-led-display/
 
 
 log.level = LOG_LEVEL;
@@ -37,7 +38,7 @@ function onCharacteristicDataWritten(data) {
         return true;
 
     var jsonString = JSON.stringify({command:data});
-        debug("Sending: " + jsonString);
+    debug("Sending: " + jsonString);
 
     if (ws)
         ws.send(jsonString);
