@@ -1,3 +1,8 @@
+var bleno = require('bleno');
+var eddystoneBeacon = require('eddystone-beacon');
+var log = require('winston');
+var WebSocket = require('ws');
+
 // ---------------------------------------------------------------------------------------------------------
 
 DEVICE_NAME = 'UnicornHat';
@@ -6,13 +11,24 @@ LOG_LEVEL = 'info';
 FLIPFLOP_TIME = 3000;
 BEACON_URL = 'https://goo.gl/54eFBa' // = https://webbluetoothcg.github.io/demos/bluetooth-led-display/
 
+
+log.level = LOG_LEVEL;
+
 // ---------------------------------------------------------------------------------------------------------
 // Service selection
 
-//var GattService = require('./services/uart/uart-service');
+var GattService = require('./services/uart/uart-service');
 
-var GattService = require('./services/dotti/service');
+//var GattService = require('./services/dotti/service');
 var service = new GattService(onCharacteristicDataWritten);
+
+WEBSOCKET_UNICORNHAT_URL = 'ws://localhost:8001'
+var ws = undefined;
+try {
+    ws = new WebSocket(WEBSOCKET_UNICORNHAT_URL);
+} catch (error) {
+    handleError("ERROR: WebSocket could not be created, " + error );
+}
 
 function onCharacteristicDataWritten(data) {
     debug("RECV: " + data);
@@ -20,6 +36,13 @@ function onCharacteristicDataWritten(data) {
     if (data.length < 2)
         return true;
 
+    var jsonString = JSON.stringify({command:data});
+        debug("Sending: " + jsonString);
+
+    if (ws)
+        ws.send(jsonString);
+
+    return true;
 }
 
 
@@ -53,10 +76,6 @@ WEBSOCKET_GPIO_URL = 'ws://localhost:8000'
 process.env['BLENO_DEVICE_NAME'] = DEVICE_NAME;
 
 
-var bleno = require('bleno');
-var eddystoneBeacon = require('eddystone-beacon');
-var log = require('winston');
-log.level = LOG_LEVEL;
 log.info("Starting...");
 
 
