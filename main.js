@@ -8,8 +8,8 @@ var WebSocket = require('ws');
 DEVICE_NAME = 'Doticorn';
 TX_POWER= -25
 LOG_LEVEL = 'info';
-FLIPFLOP_TIME = 15000;
-BEACON_URL = 'https://RWI75V';   // Doticorn
+FLIPFLOP_TIME = 3000;
+BEACON_URL = 'https://goo.gl/RWI75V';   // Doticorn
 //BEACON_URL = 'https://goo.gl/54eFBa' // = https://webbluetoothcg.github.io/demos/bluetooth-led-display/
 
 
