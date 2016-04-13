@@ -18,15 +18,16 @@ log.level = LOG_LEVEL;
 // ---------------------------------------------------------------------------------------------------------
 // Service selection
 
-var GattService = require('./services/uart/uart-service');
-
+//var GattService = require('./services/uart/uart-service');
 //var GattService = require('./services/dotti/service');
+var GattService = require('./services/lightbulb/service');
+
 var service = new GattService(onCharacteristicDataWritten);
 
 WEBSOCKET_UNICORNHAT_URL = 'ws://localhost:8001'
 var ws = undefined;
 try {
-    ws = new WebSocket(WEBSOCKET_UNICORNHAT_URL);
+    //ws = new WebSocket(WEBSOCKET_UNICORNHAT_URL);
 } catch (error) {
     handleError("ERROR: WebSocket could not be created, " + error );
 }
